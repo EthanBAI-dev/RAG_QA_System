@@ -176,7 +176,7 @@ def load_knowledge_base():
         from collections import Counter
         source_counts = Counter(sources)
         file_items = ''.join(
-            f'<li style="font-size:14px;">{name}: <b>{cnt}</b> チャンク</li>'
+            f'<li style="font-size:14px; color:#28a745;">{name}: <b>{cnt}</b> チャンク</li>'
             for name, cnt in source_counts.items()
         )
         st.markdown(
@@ -185,7 +185,7 @@ def load_knowledge_base():
             f'<summary style="cursor:pointer; color:#28a745; font-weight:600; font-size:15px;">'
             f'ベクトル構築が完了しました！ 合計 {len(docs)} チャンク ／ {len(source_counts)} ファイル'
             f'</summary>'
-            f'<ul style="margin-top:8px; line-height:1.8;">{file_items}</ul>'
+            f'<ul style="margin-top:8px; line-height:1.8; color:#28a745;">{file_items}</ul>'
             f'</details>'
             f'</div>',
             unsafe_allow_html=True,
@@ -238,7 +238,7 @@ def load_knowledge_base():
         from collections import Counter
         source_counts = Counter(vector.sources)
         file_items = ''.join(
-            f'<li style="font-size:14px;">{name}: <b>{cnt}</b> チャンク</li>'
+            f'<li style="font-size:14px; color:#28a745;">{name}: <b>{cnt}</b> チャンク</li>'
             for name, cnt in source_counts.items()
         )
         st.markdown(
@@ -247,7 +247,7 @@ def load_knowledge_base():
             f'<summary style="cursor:pointer; color:#28a745; font-weight:600; font-size:15px;">'
             f'増分構築が完了しました！ 合計 {len(vector.document)} チャンク ／ {len(source_counts)} ファイル'
             f'</summary>'
-            f'<ul style="margin-top:8px; line-height:1.8;">{file_items}</ul>'
+            f'<ul style="margin-top:8px; line-height:1.8; color:#28a745;">{file_items}</ul>'
             f'</details>'
             f'</div>',
             unsafe_allow_html=True,
@@ -299,11 +299,11 @@ with st.sidebar:
         files = sorted([f for f in os.listdir(data_dir) if f.endswith(('.md', '.txt', '.pdf'))])
         if files:
             for f in files:
-                col_f, col_d = st.columns([5, 1])
+                col_f, col_d = st.columns([10, 1])
                 with col_f:
                     st.markdown(f"📄 {f}")
                 with col_d:
-                    if st.button("✕", key=f"sidebar_del_{f}", help=f"{f} を削除"):
+                    if st.button("✕", key=f"sidebar_del_{f}", help=f"{f} を削除", type="secondary"):
                         os.remove(os.path.join(data_dir, f))
                         load_knowledge_base.clear()
                         st.rerun()
@@ -311,6 +311,25 @@ with st.sidebar:
             st.caption("資料がありません")
     else:
         st.caption("資料ディレクトリが存在しません")
+
+    data_dir_for_upload = './data'
+    os.makedirs(data_dir_for_upload, exist_ok=True)
+
+    uploaded = st.file_uploader(
+        "ファイルを追加",
+        type=["md", "txt", "pdf"],
+        accept_multiple_files=True,
+        key=f"sidebar_uploader_{st.session_state.file_uploader_counter}",
+    )
+
+    if uploaded:
+        for uf in uploaded:
+            filepath = os.path.join(data_dir_for_upload, uf.name)
+            with open(filepath, 'wb') as wf:
+                wf.write(uf.getbuffer())
+        st.session_state.file_uploader_counter += 1
+        load_knowledge_base.clear()
+        st.rerun()
 
     st.divider()
     st.header("回答設定")
@@ -351,56 +370,22 @@ with st.sidebar:
         st.session_state.pending_question = None
         st.rerun()
 
-data_dir = './data'
-os.makedirs(data_dir, exist_ok=True)
-
-col_left, col_right = st.columns([3, 1])
-
-with col_left:
-    if doc_summaries:
-        file_list_html = ''.join(
-            f'<div style="margin-top:4px;font-size:12px;color:rgba(255,255,255,0.9);">'
-            f'📄 <b>{fname}</b> — {summary}</div>'
-            for fname, summary in doc_summaries
-        )
-        st.markdown(
-            f'<div style="background:linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);'
-            f'padding:10px 16px;border-radius:10px;'
-            f'min-height:80px;display:flex;flex-direction:column;justify-content:center;">'
-            f'<span style="color:white;font-size:13px;font-weight:600;">'
-            f'📚 ナレッジベース（{len(doc_summaries)}件のドキュメント）</span>'
-            f'{file_list_html}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
-with col_right:
+if doc_summaries:
+    file_list_html = ''.join(
+        f'<div style="margin-top:4px;margin-left:16px;font-size:12px;color:rgba(255,255,255,0.9);">'
+        f'📄 <b>{fname}</b> — {summary}</div>'
+        for fname, summary in doc_summaries
+    )
     st.markdown(
-        '<div style="border:2px dashed #aaa; border-radius:10px; padding:18px 8px; '
-        'text-align:center; color:#999; background:#fafafa; font-size:12px; '
-        'min-height:80px; display:flex; flex-direction:column; justify-content:center;">'
-        '<div>Drag & Drop</div>'
-        '<div style="color:#bbb;">.md .txt .pdf</div>'
-        '</div>',
+        f'<div style="background:linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);'
+        f'padding:10px 16px;border-radius:10px;margin-bottom:4px;'
+        f'min-height:80px;display:flex;flex-direction:column;justify-content:center;">'
+        f'<span style="color:white;font-size:13px;font-weight:600;">'
+        f'📚 ナレッジベース（{len(doc_summaries)}件のドキュメント）</span>'
+        f'{file_list_html}'
+        f'</div>',
         unsafe_allow_html=True,
     )
-
-    uploaded = st.file_uploader(
-        "",
-        type=["md", "txt", "pdf"],
-        accept_multiple_files=True,
-        key=f"file_uploader_main_{st.session_state.file_uploader_counter}",
-        label_visibility="collapsed",
-    )
-
-    if uploaded:
-        for uf in uploaded:
-            filepath = os.path.join(data_dir, uf.name)
-            with open(filepath, 'wb') as wf:
-                wf.write(uf.getbuffer())
-        st.session_state.file_uploader_counter += 1
-        load_knowledge_base.clear()
-        st.rerun()
 
 loading_placeholder = st.empty()
 loading_placeholder.markdown(
