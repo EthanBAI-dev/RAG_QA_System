@@ -21,8 +21,6 @@
 
 ![结果2](images/result2.png)
 
-![结果3](images/result3.png)
-
 ---
 
 ## 使用方法
