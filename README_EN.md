@@ -21,8 +21,6 @@ This project is a QA system that lets you ask natural-language questions about l
 
 ![Result 2](images/result2.png)
 
-![Result 3](images/result3.png)
-
 ---
 
 ## Getting Started
