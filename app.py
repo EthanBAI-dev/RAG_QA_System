@@ -52,9 +52,10 @@ def get_sample_questions(document_summaries):
     questions = []
     for fname in fnames[:4]:
         base_name = re.sub(r'\.[^.]+$', '', fname)
-        if len(base_name) > 30:
-            base_name = base_name[:30] + '…'
-        questions.append(f"「{base_name}」の主な内容は何ですか？")
+        target = re.sub(r'[_：:].*$', '', base_name)
+        match = re.search(r'[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]{2,8}', target)
+        keyword = match.group(0) if match else target[:8]
+        questions.append(f"「{keyword}」について教えて")
 
     if len(questions) < 4:
         for q in default_questions:
