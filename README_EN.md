@@ -12,13 +12,16 @@ This project is a QA system that lets you ask natural-language questions about l
 - **Answer style selection**: Choose from four styles — Summary Report, Study Guide, Blog Post, and Custom. Each style uses a dedicated prompt template. In Custom mode, you can freely enter any formatting instruction.
 - **Answer length control**: Select 200 / 400 / 800 tokens. This is passed directly to the `max_tokens` parameter.
 - **Search result visualization**: Retrieved Top-K chunks are displayed in an expandable area, showing the source filename, cosine similarity score, and keyword highlighting.
-- **Knowledge base management**: Simply place `.md` / `.txt` / `.pdf` files in the `data/` directory — they are automatically vectorized on startup.
+- **Knowledge base management**: Drop files into `data/` for automatic vectorization on startup. Drag & drop via Web UI to add/remove files. Incremental re-indexing for changed files only.
+- **Sample questions**: Auto-generated from file names in the knowledge base — one-click access to relevant documents.
 
 ### Results
 
-![Result 1](images/result1.png)
+![Demo](images/result1.gif)
 
 ![Result 2](images/result2.png)
+
+![Result 3](images/result3.png)
 
 ---
 
@@ -58,10 +61,10 @@ Place `.md` / `.txt` / `.pdf` files in the `data/` directory.
 ### 4. Launch
 
 ```bash
-streamlit run app.py --server.port 8502
+streamlit run app.py --server.port 8501
 ```
 
-Open `http://localhost:8502` in your browser. Configure the style and length from the sidebar, then start asking questions.
+Open `http://localhost:8501` in your browser. Configure the style and length from the sidebar, then start asking questions.
 
 ---
 
@@ -88,7 +91,7 @@ Using RAG directly from a Python script:
 from RAG.VectorBase import VectorStore
 from RAG.utils import ReadFiles
 from RAG.Embeddings import ZhipuEmbedding
-from RAG.LLM import ZhipuAIChat
+from RAG.LLM import DeepSeekAIChat
 
 # Load and split documents
 docs, sources = ReadFiles('./data').get_content(max_token_len=600, cover_content=150)
@@ -102,10 +105,10 @@ vector.persist(path='storage')
 vector = VectorStore()
 vector.load_vector('./storage')
 
-question = 'What is the accuracy of the multi-channel dispenser?'
+question = 'How to use the low-frequency therapy device?'
 content = vector.query(question, EmbeddingModel=ZhipuEmbedding(), k=1)
 
-chat = ZhipuAIChat(model='chatglm_lite')
+chat = DeepSeekAIChat(model='deepseek-chat')
 print(chat.chat(question, [], content[0]['text']))
 ```
 

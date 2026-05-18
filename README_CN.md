@@ -12,13 +12,16 @@
 - **回答风格选择**：可选概要报告 / 学习指南 / 博客文章 / 自定义格式四种风格，每种风格应用专用提示词模板。自定义格式可自由输入任意指示。
 - **回答长度设置**：可选 200 / 400 / 800 令牌，反映到 `max_tokens` 参数。
 - **检索结果可视化**：Top-K 文本块展开显示，包含来源文件名、相似度分数（余弦相似度）、关键词高亮。
-- **知识库管理**：将 `.md` / `.txt` / `.pdf` 文件放入 `data/` 目录，启动时自动向量化。
+- **知识库管理**：将文件放入 `data/` 目录即可在启动时自动向量化。Web UI 支持拖放添加/删除文件，仅对变更文件进行增量索引。
+- **问题样例**：根据知识库中的文件名自动生成问题，一键点击即可提问。
 
 ### 运行结果
 
-![结果1](images/result1.png)
+![操作演示](images/result1.gif)
 
 ![结果2](images/result2.png)
+
+![结果3](images/result3.png)
 
 ---
 
@@ -58,10 +61,10 @@ DEEPSEEK_API_KEY='你的DeepSeek API密钥'
 ### 4. 启动
 
 ```bash
-streamlit run app.py --server.port 8502
+streamlit run app.py --server.port 8501
 ```
 
-浏览器打开 `http://localhost:8502` 即可看到聊天界面。在侧边栏设置风格和长度，然后输入问题即可。
+浏览器打开 `http://localhost:8501` 即可看到聊天界面。在侧边栏设置风格和长度，然后输入问题即可。
 
 ---
 
@@ -88,7 +91,7 @@ RAG（检索增强生成）按以下三个步骤运行：
 from RAG.VectorBase import VectorStore
 from RAG.utils import ReadFiles
 from RAG.Embeddings import ZhipuEmbedding
-from RAG.LLM import ZhipuAIChat
+from RAG.LLM import DeepSeekAIChat
 
 # 读取并分割文档
 docs, sources = ReadFiles('./data').get_content(max_token_len=600, cover_content=150)
@@ -102,10 +105,10 @@ vector.persist(path='storage')
 vector = VectorStore()
 vector.load_vector('./storage')
 
-question = '多通道自动分液器的精度是多少？'
+question = '低周波治療器的使用方法是？'
 content = vector.query(question, EmbeddingModel=ZhipuEmbedding(), k=1)
 
-chat = ZhipuAIChat(model='chatglm_lite')
+chat = DeepSeekAIChat(model='deepseek-chat')
 print(chat.chat(question, [], content[0]['text']))
 ```
 
