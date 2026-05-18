@@ -19,7 +19,7 @@
 
 ![操作デモ](images/result1.gif)
 
-![結果2](images/result2.png)![結果3](images/result3.png)
+![結果2](images/result2.png)
 
 ---
 
