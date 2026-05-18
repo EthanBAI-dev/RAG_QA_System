@@ -12,13 +12,18 @@
 - **回答スタイル選択**：概要レポート・学習ガイド・ブログ記事・カスタム形式の4種から選択。スタイルごとに専用のプロンプトテンプレートが適用されます。カスタム形式では任意の指示を自由に入力可能です。
 - **回答の長さ設定**：200 / 400 / 800 トークンから選択。`max_tokens` パラメータに反映されます。
 - **検索結果の可視化**：Top-K チャンクを展開表示し、出典ファイル名・類似度スコア（コサイン類似度）・キーワードハイライトを確認できます。
-- **ナレッジベース管理**：`data/` に `.md` / `.txt` / `.pdf` を置くだけで、起動時に自動ベクトル化されます。
+- **ナレッジベース管理**：`data/` ディレクトリに `.md` / `.txt` / `.pdf` ファイルを配置するだけで、起動時に自動ベクトル化されます。Web UI から Drag & Drop でファイルの追加・削除が可能です。既存ファイルの変更を検出し、変更分のみを再処理する**増分ベクトル構築**に対応。構築完了時にはファイル別のチャンク数内訳を展開表示します。
+- **質問サンプル**：ナレッジベースに登録されたファイル名から自動で質問例を生成。クリックするだけで関連文書への質問が可能です。
 
 ### 実行結果
 
 ![結果1](images/result1.png)
 
 ![結果2](images/result2.png)
+
+![結果3](images/result3.png)
+
+![操作デモ](images/result1.gif)
 
 ---
 
@@ -58,10 +63,10 @@ DEEPSEEK_API_KEY='あなたのDeepSeek APIキー'
 ### 4. 起動
 
 ```bash
-streamlit run app.py --server.port 8502
+streamlit run app.py --server.port 8501
 ```
 
-ブラウザで `http://localhost:8502` を開くと、チャット画面が表示されます。サイドバーからスタイルや長さを設定し、質問を入力してください。
+ブラウザで `http://localhost:8501` を開くと、チャット画面が表示されます。サイドバーからスタイルや長さを設定し、質問を入力してください。
 
 ---
 
@@ -88,7 +93,7 @@ Python スクリプトから直接 RAG を利用する場合の流れです。
 from RAG.VectorBase import VectorStore
 from RAG.utils import ReadFiles
 from RAG.Embeddings import ZhipuEmbedding
-from RAG.LLM import ZhipuAIChat
+from RAG.LLM import DeepSeekAIChat
 
 # ドキュメントを読み込み、分割
 docs, sources = ReadFiles('./data').get_content(max_token_len=600, cover_content=150)
@@ -102,10 +107,10 @@ vector.persist(path='storage')
 vector = VectorStore()
 vector.load_vector('./storage')
 
-question = 'マルチチャンネル自動分注機の精度は？'
+question = '低周波治療器の使い方は？'
 content = vector.query(question, EmbeddingModel=ZhipuEmbedding(), k=1)
 
-chat = ZhipuAIChat(model='chatglm_lite')
+chat = DeepSeekAIChat(model='deepseek-chat')
 print(chat.chat(question, [], content[0]['text']))
 ```
 

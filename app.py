@@ -52,6 +52,8 @@ def get_sample_questions(document_summaries):
     questions = []
     for fname in fnames[:4]:
         base_name = re.sub(r'\.[^.]+$', '', fname)
+        if len(base_name) > 30:
+            base_name = base_name[:30] + '…'
         questions.append(f"「{base_name}」の主な内容は何ですか？")
 
     if len(questions) < 4:
