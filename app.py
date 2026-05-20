@@ -7,8 +7,232 @@ from RAG.VectorBase import VectorStore
 from RAG.Embeddings import ZhipuEmbedding
 from RAG.LLM import ZhipuAIChat, DeepSeekAIChat
 
-st.set_page_config(page_title="RAGシステム", layout="wide")
-st.title("RAGインテリジェントQ&Aシステム")
+st.set_page_config(page_title="RAG Q&A", layout="wide")
+
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+:root {
+  --ink: #1a1a2e;
+  --ink-light: #3a3a4e;
+  --paper: #faf8f5;
+  --paper-white: #ffffff;
+  --indigo-deep: #2d3a6e;
+  --indigo-mid: #445e8c;
+  --indigo-light: #e8edf5;
+  --amber: #c8963e;
+  --amber-light: #fef5e7;
+  --green: #4a7c59;
+  --green-light: #edf7f0;
+  --border: #e8e4df;
+  --shadow-sm: 0 1px 3px rgba(26,26,46,0.06);
+  --shadow-md: 0 4px 24px rgba(26,26,46,0.08);
+  --radius: 14px;
+}
+
+html, body, [class*="css"] {
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif !important;
+  color: var(--ink);
+}
+
+.stApp {
+  background: var(--paper);
+}
+
+.stMainBlockContainer {
+  padding-top: 1.5rem !important;
+}
+
+.stSidebar {
+  background: linear-gradient(180deg, var(--indigo-deep) 0%, #1e2a50 100%) !important;
+}
+.stSidebar .stCheckbox,
+.stSidebar .stCheckbox label,
+.stSidebar .stCheckbox span,
+.stSidebar [data-testid="stCheckbox"] {
+  color: rgba(255,255,255,0.88) !important;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif !important;
+}
+
+.stSidebar [data-testid="stCheckbox"] label p {
+  color: rgba(255,255,255,0.88) !important;
+  font-size: 0.8rem !important;
+}
+
+.stSidebar .stMarkdown,
+.stSidebar .stCaption,
+.stSidebar label,
+.stSidebar .stSlider > div > div > div {
+  color: rgba(255,255,255,0.88) !important;
+  font-family: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif !important;
+}
+.stSidebar h1, .stSidebar h2, .stSidebar h3, .stSidebar h4,
+.stSidebar .stMarkdown strong, .stSidebar .stMarkdown b {
+  color: #ffffff !important;
+}
+.stSidebar [data-testid="stSelectbox"] label,
+.stSidebar [data-testid="stSlider"] label,
+.stSidebar [data-testid="stTextArea"] label {
+  color: rgba(255,255,255,0.78) !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.03em;
+}
+.stSidebar [data-baseweb="select"],
+.stSidebar [data-baseweb="input"],
+.stSidebar textarea {
+  background: rgba(0,0,0,0.25) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+.stSidebar [data-baseweb="select"] svg,
+.stSidebar [data-baseweb="select"] path {
+  fill: rgba(255,255,255,0.7) !important;
+}
+.stSidebar [data-baseweb="select"] [role="listbox"],
+.stSidebar [data-baseweb="select"] ul {
+  background: #1e2a50 !important;
+  color: #ffffff !important;
+}
+.stSidebar [data-baseweb="select"] [role="listbox"] li,
+.stSidebar [data-baseweb="select"] ul li {
+  color: #ffffff !important;
+}
+.stSidebar [data-testid="stFileUploader"] section {
+  background: rgba(0,0,0,0.2) !important;
+  border: 1px dashed rgba(255,255,255,0.2) !important;
+  border-radius: 8px !important;
+}
+.stSidebar [data-testid="stFileUploader"] section p,
+.stSidebar [data-testid="stFileUploader"] section span,
+.stSidebar [data-testid="stFileUploader"] section small {
+  color: rgba(255,255,255,0.55) !important;
+}
+.stSidebar [data-testid="stFileUploader"] section button {
+  background: rgba(255,255,255,0.12) !important;
+  color: rgba(255,255,255,0.8) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  border-radius: 6px !important;
+}
+.stSidebar .stButton > button {
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-size: 0.8rem !important;
+  transition: all 0.2s ease;
+}
+.stSidebar .stButton > button:hover {
+  background: rgba(255,255,255,0.24) !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
+.stSidebar .stButton > button[kind="secondary"] {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: rgba(255,255,255,0.45) !important;
+  padding: 0 5px !important;
+  font-size: 0.62rem !important;
+  min-height: unset !important;
+  height: 22px !important;
+  line-height: 22px !important;
+  border-radius: 4px !important;
+}
+.stSidebar .stButton > button[kind="secondary"]:hover {
+  background: rgba(220,53,69,0.3) !important;
+  border-color: rgba(220,53,69,0.5) !important;
+  color: #ff6b6b !important;
+}
+.stSidebar [data-testid="stNotification"] {
+  background: #1e2a50 !important;
+}
+
+.stChatMessage {
+  background: var(--paper-white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 16px 20px !important;
+  margin-bottom: 12px !important;
+}
+.stChatMessage [data-testid="chatAvatarIcon-user"] {
+  background: linear-gradient(135deg, var(--indigo-deep), var(--indigo-mid)) !important;
+}
+.stChatMessage [data-testid="chatAvatarIcon-assistant"] {
+  background: linear-gradient(135deg, var(--amber), #d4a84c) !important;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stChatMessage {
+  animation: fadeSlideIn 0.4s ease-out;
+}
+
+.stChatMessage:nth-child(odd) {
+  animation-delay: 0.05s;
+}
+
+.stTextInput > div > div > input,
+.stChatInput textarea {
+  border-radius: 10px !important;
+  border: 1.5px solid var(--border) !important;
+  background: var(--paper-white) !important;
+  padding: 12px 16px !important;
+  font-size: 0.95rem !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.stChatInput textarea:focus,
+.stTextInput > div > div > input:focus {
+  border-color: var(--indigo-mid) !important;
+  box-shadow: 0 0 0 3px rgba(68,94,140,0.12) !important;
+}
+
+.stSelectbox [data-baseweb="select"] > div {
+  border-radius: 8px !important;
+  border-color: var(--border) !important;
+}
+
+hr, .stDivider {
+  border-color: var(--border) !important;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0ece6 25%, #e8e4df 50%, #f0ece6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(68,94,140,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(68,94,140,0); }
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div style="padding: 8px 0 0 0; margin-bottom: 4px;">
+  <div style="display: flex; align-items: baseline; gap: 16px;">
+    <div style="font-size: 1.55rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;">
+      RAG Q&A
+    </div>
+    <div style="font-size: 0.85rem; color: #888; font-weight: 400; letter-spacing: 0.04em;">
+      AI-powered document intelligence
+    </div>
+  </div>
+  <div style="margin-top: 4px; width: 48px; height: 3px; background: linear-gradient(90deg, var(--amber), #e0bc6c); border-radius: 2px;"></div>
+</div>
+""", unsafe_allow_html=True)
 
 
 def get_document_summaries(data_dir='./data'):
@@ -292,17 +516,31 @@ if "file_uploader_counter" not in st.session_state:
 doc_summaries = get_document_summaries('./data')
 
 with st.sidebar:
-    st.header("ナレッジベース")
+    st.markdown("""
+    <div style="padding: 6px 0 2px 0;">
+      <div style="font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 2px;">ナレッジベース</div>
+      <div style="font-size: 0.68rem; opacity: 0.6; letter-spacing: 0.05em;">KNOWLEDGE BASE</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     data_dir = './data'
     if os.path.isdir(data_dir):
         files = sorted([f for f in os.listdir(data_dir) if f.endswith(('.md', '.txt', '.pdf'))])
         if files:
             for f in files:
-                col_f, col_d = st.columns([10, 1])
-                with col_f:
-                    st.markdown(f"📄 {f}")
-                with col_d:
+                c_fname, c_del = st.columns([9, 1], vertical_alignment="center")
+                with c_fname:
+                    st.markdown(f"""
+                    <div style="display:flex; align-items:center; gap:6px;
+                    padding:0 8px; margin:0; border-radius:5px;
+                    background:rgba(255,255,255,0.06); font-size:0.75rem;
+                    height:40px; line-height:40px;
+                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    <span style="opacity:0.45; font-size:0.7rem;">📄</span>
+                    <span>{f}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                with c_del:
                     if st.button("✕", key=f"sidebar_del_{f}", help=f"{f} を削除", type="secondary"):
                         os.remove(os.path.join(data_dir, f))
                         load_knowledge_base.clear()
@@ -315,11 +553,17 @@ with st.sidebar:
     data_dir_for_upload = './data'
     os.makedirs(data_dir_for_upload, exist_ok=True)
 
+    st.markdown("""
+    <div style="margin-top:12px; margin-bottom:4px; font-size:0.72rem; opacity:0.55; letter-spacing:0.04em;">
+    ファイルを追加</div>
+    """, unsafe_allow_html=True)
+
     uploaded = st.file_uploader(
-        "ファイルを追加",
+        "",
         type=["md", "txt", "pdf"],
         accept_multiple_files=True,
         key=f"sidebar_uploader_{st.session_state.file_uploader_counter}",
+        label_visibility="collapsed",
     )
 
     if uploaded:
@@ -332,16 +576,22 @@ with st.sidebar:
         st.rerun()
 
     st.divider()
-    st.header("回答設定")
+
+    st.markdown("""
+    <div style="margin-bottom:6px;">
+      <div style="font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 2px;">回答設定</div>
+      <div style="font-size: 0.68rem; opacity: 0.6; letter-spacing: 0.05em;">RESPONSE SETTINGS</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.selectbox(
         "LLMモデル",
         options=list(MODEL_OPTIONS.keys()),
-        key="model_name"
+        key="model_name",
     )
 
     st.selectbox(
-        "回答の長さ（トークン数）",
+        "回答の長さ",
         options=LENGTH_OPTIONS,
         key="answer_length",
         format_func=lambda x: f"{x} トークン",
@@ -360,68 +610,107 @@ with st.sidebar:
             placeholder="例：箇条書きで簡潔に答えてください。",
         )
 
-    k = st.slider("検索数 Top-K", 1, 5, 3)
+    k = st.slider("検索チャンク数 Top-K", 1, 5, 3)
 
     show_context = st.checkbox("検索内容を表示", True)
 
-    if st.button("会話をクリア"):
+    if st.button("🗑 会話をクリア", use_container_width=True):
         st.session_state.history = []
         st.session_state.context_docs = []
         st.session_state.pending_question = None
         st.rerun()
 
+    st.markdown("""
+    <div style="position:fixed; bottom:16px; font-size:0.62rem; opacity:0.35; text-align:center; width:calc(100% - 48px);">
+    RAG Q&A System v2.0<br>&copy; 2026
+    </div>
+    """, unsafe_allow_html=True)
+
 if doc_summaries:
-    file_list_html = ''.join(
-        f'<div style="margin-top:4px;margin-left:16px;font-size:12px;color:rgba(255,255,255,0.9);">'
-        f'📄 <b>{fname}</b> — {summary}</div>'
+    file_items = ''.join(
+        f'<div style="display:flex; align-items:baseline; gap:8px; margin-top:6px; font-size:12px;">'
+        f'<span style="color:var(--indigo-mid); font-weight:600; white-space:nowrap;">{fname}</span>'
+        f'<span style="color:#888; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{summary}</span>'
+        f'</div>'
         for fname, summary in doc_summaries
     )
     st.markdown(
-        f'<div style="background:linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);'
-        f'padding:10px 16px;border-radius:10px;margin-bottom:4px;'
-        f'min-height:80px;display:flex;flex-direction:column;justify-content:center;">'
-        f'<span style="color:white;font-size:13px;font-weight:600;">'
-        f'📚 ナレッジベース（{len(doc_summaries)}件のドキュメント）</span>'
-        f'{file_list_html}'
+        f'<div style="background:var(--paper-white); border:1px solid var(--border); '
+        f'border-radius:var(--radius); padding:14px 20px; margin-bottom:8px; '
+        f'box-shadow:var(--shadow-sm);">'
+        f'<div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">'
+        f'<div style="width:6px; height:6px; border-radius:50%; background:var(--amber);"></div>'
+        f'<span style="font-size:13px; font-weight:700; color:var(--ink); letter-spacing:0.01em;">'
+        f'ナレッジベース</span>'
+        f'<span style="font-size:11px; color:#aaa; margin-left:auto;">{len(doc_summaries)} docs</span>'
+        f'</div>'
+        f'{file_items}'
         f'</div>',
         unsafe_allow_html=True,
     )
 
+loading_html = """
+<div style="display:flex; justify-content:center; align-items:center; min-height:200px;">
+  <div style="text-align:center;">
+    <div style="width:40px; height:40px; margin:0 auto 16px auto; border-radius:50%;
+    border:3px solid var(--border); border-top-color:var(--indigo-mid);
+    animation: spin 0.8s linear infinite;"></div>
+    <div style="font-size:15px; font-weight:600; color:var(--ink);">ナレッジベースを読み込み中...</div>
+    <div style="font-size:12px; color:#aaa; margin-top:4px;">初回はベクトル構築のため数十秒かかります</div>
+  </div>
+</div>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+"""
 loading_placeholder = st.empty()
-loading_placeholder.markdown(
-    '<div style="display:flex; justify-content:center; align-items:center; min-height:180px;">'
-    '<div style="text-align:center; padding:36px 56px; border:1px solid #e0e0e0; '
-    'border-radius:12px; background:#ffffff; box-shadow:0 2px 16px rgba(0,0,0,0.06);">'
-    '<div style="font-size:18px; font-weight:600; color:#333;">'
-    'ナレッジベースを読み込み中...</div>'
-    '</div></div>',
-    unsafe_allow_html=True,
-)
+loading_placeholder.markdown(loading_html, unsafe_allow_html=True)
 vector, embedding = load_knowledge_base()
 loading_placeholder.empty()
 
-st.markdown('<hr style="margin:10px 0 6px 0;border:none;border-top:1px solid #e0e0e0;">', unsafe_allow_html=True)
+st.markdown('<hr style="margin:12px 0 8px 0;border:none;border-top:1px solid var(--border);">', unsafe_allow_html=True)
 
 for role, msg in st.session_state.history:
     with st.chat_message(role):
         st.write(msg)
 
 sample_questions = get_sample_questions(doc_summaries)
-st.markdown(
-    '<p style="font-size:13px;color:#888;margin-top:10px;margin-bottom:6px;">質問例をクリックして試してみましょう</p>',
-    unsafe_allow_html=True,
-)
-cols = st.columns(len(sample_questions))
-for i, (col, q) in enumerate(zip(cols, sample_questions)):
-    with col:
-        if st.button(
-            q, key=f"sample_q_{st.session_state.file_uploader_counter}_{i}", use_container_width=True,
-            type="secondary",
-        ):
-            st.session_state.pending_question = q
-            st.rerun()
+if sample_questions:
+    st.markdown(
+        '<p style="font-size:12px; color:#aaa; margin:10px 0 8px 0; letter-spacing:0.03em;">'
+        '質問例をクリック</p>',
+        unsafe_allow_html=True,
+    )
+    cols = st.columns(len(sample_questions))
+    for i, (col, q) in enumerate(zip(cols, sample_questions)):
+        with col:
+            st.markdown(f"""
+            <style>
+            div[data-testid="stButton"] button[kind="secondary"][id="sample_{st.session_state.file_uploader_counter}_{i}"] {{
+              background: var(--paper-white) !important;
+              border: 1px solid var(--border) !important;
+              border-radius: 20px !important;
+              font-size: 0.78rem !important;
+              padding: 6px 14px !important;
+              color: var(--ink-light) !important;
+              transition: all 0.2s ease;
+              white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }}
+            div[data-testid="stButton"] button[kind="secondary"][id="sample_{st.session_state.file_uploader_counter}_{i}"]:hover {{
+              background: var(--indigo-light) !important;
+              border-color: var(--indigo-mid) !important;
+              color: var(--indigo-deep) !important;
+            }}
+            </style>
+            """, unsafe_allow_html=True)
+            if st.button(
+                q, key=f"sample_q_{st.session_state.file_uploader_counter}_{i}",
+                use_container_width=True, type="secondary",
+            ):
+                st.session_state.pending_question = q
+                st.rerun()
 
-question = st.chat_input("質問を入力してください...")
+question = st.chat_input("ドキュメントについて質問してください...")
 
 if st.session_state.pending_question:
     question = st.session_state.pending_question
