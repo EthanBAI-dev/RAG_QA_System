@@ -41,7 +41,7 @@ html, body, [class*="css"] {
 }
 
 .stMainBlockContainer {
-  padding-top: 1.5rem !important;
+  padding-top: 3.5rem !important;
 }
 
 .stSidebar {
@@ -614,11 +614,12 @@ with st.sidebar:
 
     show_context = st.checkbox("検索内容を表示", True)
 
-    if st.button("🗑 会話をクリア", use_container_width=True):
+    def clear_chat():
         st.session_state.history = []
         st.session_state.context_docs = []
         st.session_state.pending_question = None
-        st.rerun()
+
+    st.button("🗑 会話をクリア", on_click=clear_chat, use_container_width=True, type="primary")
 
     st.markdown("""
     <div style="position:fixed; bottom:16px; font-size:0.62rem; opacity:0.35; text-align:center; width:calc(100% - 48px);">
