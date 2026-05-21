@@ -6,6 +6,9 @@
 
 本项目使用 RAG（检索增强生成）技术，让你可以用自然语言对本地存储的手册和文档进行提问。嵌入模型使用 ZhipuAI API，回答生成使用性价比极高的 DeepSeek API。配备基于 Streamlit 的 Web UI，在浏览器中即可直观操作。
 
+> **在线体验**：[https://ethanbai-dev-rag-qa-system-app-onouyl.streamlit.app/](https://ethanbai-dev-rag-qa-system-app-onouyl.streamlit.app/)  
+> （激活应用可能需要几分钟时间。）
+
 ### Web UI 主要功能
 
 - **聊天式对话**：输入问题后，RAG 检索相关文档，DeepSeek 流式输出回答。会话历史在会话期间保留。

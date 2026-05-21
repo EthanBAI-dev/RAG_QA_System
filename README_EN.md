@@ -6,6 +6,9 @@
 
 This project is a QA system that lets you ask natural-language questions about locally stored manuals and documents using RAG (Retrieval-Augmented Generation). It uses the ZhipuAI API for embeddings and the DeepSeek API — known for its high performance at a low cost — for answer generation. A Streamlit web UI provides an intuitive browser-based experience.
 
+> **Try it live**: [https://ethanbai-dev-rag-qa-system-app-onouyl.streamlit.app/](https://ethanbai-dev-rag-qa-system-app-onouyl.streamlit.app/)  
+> (It may take a few minutes for the app to wake up.)
+
 ### Web UI Features
 
 - **Chat-style interaction**: Type a question, and the system retrieves relevant documents via RAG, then DeepSeek streams the answer in real time. Conversation history is preserved across the session.

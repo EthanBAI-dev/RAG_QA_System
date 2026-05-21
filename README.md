@@ -6,6 +6,9 @@
 
 本プロジェクトは、RAG（検索拡張生成）技術を用いて、ローカルに保存したマニュアルやドキュメントに対して自然言語で質問できるQAシステムです。埋め込みモデルに ZhipuAI API、回答生成にはコストパフォーマンスに優れた DeepSeek API を使用しています。Streamlit による Web UI を備え、ブラウザ上で直感的に操作できます。
 
+> **オンラインで試す**：[https://ethanbai-dev-rag-qa-system-app-onouyl.streamlit.app/](https://ethanbai-dev-rag-qa-system-app-onouyl.streamlit.app/)  
+> （アプリの起動に数分かかる場合があります。）
+
 ### Web UI の主な機能
 
 - **チャット形式の対話**：質問を入力すると、RAG が関連文書を検索し、DeepSeek が回答をストリーミング表示します。会話履歴はセッション中保持されます。
